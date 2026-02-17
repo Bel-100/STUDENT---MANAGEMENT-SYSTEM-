@@ -1,13 +1,11 @@
-   // Student class example
-   class Student {
-   public:
-       string indexNumber;
-       string name;
-       
-       Student(string idx, string n) : indexNumber(idx), name(n) {}
-       void display() {
-           cout << "Index: " << indexNumber << ", Name: " << name << endl;
-       }
-   };
-   
+# Digital Attendance System
+
+A simple attendance management system implemented in C++.
+
+## Development Environment
+- VS Code
+- C++ Compiler 
+
+## Author
+Botchway Christabel (01242151D)
 

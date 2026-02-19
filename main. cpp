@@ -50,3 +50,7 @@ case 2: // Attendance
         sessions.push_back(AttendanceSession("EE201", "2026-02-20"));
     }
     break;
+
+void AttendanceSession::markAttendance(string index, string status) {
+    attendance[index] = status;
+}

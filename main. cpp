@@ -44,3 +44,9 @@ public:
     map<string, string> attendance;
     AttendanceSession(string cc, string d);
 };
+case 2: // Attendance
+    cout << "1. Create Session\n";
+    if (subChoice == 1) {
+        sessions.push_back(AttendanceSession("EE201", "2026-02-20"));
+    }
+    break;

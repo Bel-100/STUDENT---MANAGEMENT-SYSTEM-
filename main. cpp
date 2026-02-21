@@ -1,93 +1,30 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <map> // 1. Added missing header
+#include <fstream>
 
-using namespace std;
-
-// 2. Define your classes at the TOP
 class Student {
 public:
-    string indexNumber;
-    string name;
-    Student(string idx, string n) : indexNumber(idx), name(n) {}
-    void display() {
-        cout << "Index: " << indexNumber << ", Name: " << name << endl;
-    }
+    std::string indexNumber;
+    std::string name;
+
+    Student(std::string idx, std::string n) : indexNumber(idx), name(n) {}
 };
 
 class AttendanceSession {
 public:
-    string courseCode;
-    string date;
-    map<string, string> attendance;
-    
-    AttendanceSession(string cc, string d) : courseCode(cc), date(d) {}
-    
-    // 3. Declare the method inside the class
-    void markAttendance(string index, string status);
+    std::string courseCode;
+    std::string date;
+    std::vector<std::pair<Student, char>> attendance; // char: 'P' = Present, 'A' = Absent, 'L' = Late
+
+    AttendanceSession(std::string cc, std::string d) : courseCode(cc), date(d) {}
+
+    void markAttendance(Student s, char status) {
+        attendance.push_back({s, status});
+    }
 };
 
-// Define the method
-void AttendanceSession::markAttendance(string index, string status) {
-    attendance[index] = status;
-}
-
-int main() {
-    vector<Student> students;
-    vector<AttendanceSession> sessions; // Declare sessions vector
-    int choice;
-
-    do {
-        cout << "\n--- MENU ---\n";
-        cout << "1. Register student\n2. Create Attendance Session\n3. View students\n4. Mark Attendance\n5. Summary\n6. Exit\n";
-        cout << "Enter choice: ";
-        cin >> choice;
-        cin.ignore(); 
-
-        switch (choice) { // 4. All "cases" must be inside this switch
-            case 1: {
-                string idx, name;
-                cout << "Enter index: "; cin >> idx;
-                cout << "Enter name: "; cin.ignore(); getline(cin, name);
-                students.push_back(Student(idx, name));
-                break;
-            }
-            case 2: {
-                sessions.push_back(AttendanceSession("EE201", "2026-02-20"));
-                cout << "Session created!\n";
-                break;
-            }
-            case 3: {
-                for (auto& s : students) s.display();
-                break;
-            }
-            case 4: {
-                if (students.empty()) {
-                    cout << "No students available.\n";
-                } else {
-                    cout << "Enter student index (0 to " << students.size()-1 << "): ";
-                    int idx; cin >> idx;
-                    if (idx >= 0 && idx < students.size()) {
-                        cout << "Status (P/A/L): ";
-                        string status; cin >> status;
-                        // Use the first session as an example
-                        if (!sessions.empty()) sessions[0].markAttendance(students[idx].indexNumber, status);
-                    }
-                }
-                break;
-            }
-            case 5: {
-                cout << "Attendance Summary logic goes here.\n";
-                break;
-            }
-        }
-    } while (choice != 6);
-
-    return 0;
-}
-
-// Saving students
+// Saving/Loading functions
 void saveStudents(const std::vector<Student>& students) {
     std::ofstream file("students.txt");
     for (const auto& s : students) {
@@ -96,10 +33,10 @@ void saveStudents(const std::vector<Student>& students) {
     file.close();
 }
 
-// Loading students
 std::vector<Student> loadStudents() {
     std::vector<Student> students;
     std::ifstream file("students.txt");
+    if (!file.is_open()) return students; // Handle missing file
     std::string line;
     while (std::getline(file, line)) {
         size_t comma = line.find(',');
@@ -113,5 +50,108 @@ std::vector<Student> loadStudents() {
     return students;
 }
 
+void saveSession(const AttendanceSession& session) {
+    std::ofstream file("session_" + session.courseCode + "_" + session.date + ".txt");
+    for (const auto& a : session.attendance) {
+        file << a.first.indexNumber << "," << a.second << "\n";
+    }
+    file.close();
+}
 
+int main() {
+    std::vector<Student> students = loadStudents();
+    std::vector<AttendanceSession> sessions;
+    int choice;
 
+    do {
+        std::cout << "Digital Attendance System\n";
+        std::cout << "1. Register student\n";
+        std::cout << "2. View students\n";
+        std::cout << "3. Create lecture session\n";
+        std::cout << "4. Mark attendance\n";
+        std::cout << "5. Attendance summary\n";
+        std::cout << "6. Exit\n";
+        std::cout << "Enter choice: ";
+        std::cin >> choice;
+
+        switch (choice) {
+        case 1: {
+            std::string index, name;
+            std::cout << "Enter index number and name: ";
+            std::cin >> index >> name;
+            if (!index.empty() && !name.empty()) {
+                students.push_back(Student(index, name));
+                saveStudents(students);
+            } else {
+                std::cout << "Invalid input!\n";
+            }
+            break;
+        }
+        case 2:
+            std::cout << "Registered students:\n";
+            for (const auto& s : students) {
+                std::cout << s.indexNumber << " - " << s.name << "\n";
+            }
+            break;
+        case 3: {
+            std::string cc, date;
+            std::cout << "Enter course code and date (YYYY-MM-DD): ";
+            std::cin >> cc >> date;
+            sessions.push_back(AttendanceSession(cc, date));
+            break;
+        }
+        case 4: {
+            if (students.empty() || sessions.empty()) {
+                std::cout << "No students or sessions!\n";
+                break;
+            }
+            std::cout << "Select session:\n";
+            for (size_t i = 0; i < sessions.size(); i++) {
+                std::cout << i << ". " << sessions[i].courseCode << " - " << sessions[i].date << "\n";
+            }
+            size_t idx;
+            std::cin >> idx;
+            if (idx >= sessions.size()) {
+                std::cout << "Invalid session!\n";
+                break;
+            }
+            std::cout << "Mark attendance (P/A/L): ";
+            char status;
+            std::cin >> status;
+            if (status != 'P' && status != 'A' && status != 'L') {
+                std::cout << "Invalid status!\n";
+                break;
+            }
+            if (!students.empty()) {
+                sessions[idx].markAttendance(students[0], status);
+                saveSession(sessions[idx]);
+            }
+            break;
+        }
+        case 5: {
+            if (sessions.empty()) {
+                std::cout << "No sessions!\n";
+                break;
+            }
+            std::cout << "Summary:\n";
+            for (const auto& session : sessions) {
+                int p = 0, a = 0, l = 0;
+                for (const auto& att : session.attendance) {
+                    if (att.second == 'P') p++;
+                    else if (att.second == 'A') a++;
+                    else if (att.second == 'L') l++;
+                }
+                std::cout << session.courseCode << ": P=" << p << ", A=" << a << ", L=" << l << "\n";
+            }
+            break;
+        }
+        case 6:
+            std::cout << "Exiting...\n";
+            break;
+        default:
+            std::cout << "Invalid choice!\n";
+        }
+    } while (choice != 6);
+
+    return 0;
+}

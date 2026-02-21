@@ -54,3 +54,14 @@ case 2: // Attendance
 void AttendanceSession::markAttendance(string index, string status) {
     attendance[index] = status;
 }
+
+// Assuming an AttendanceSession class (from Image 3, 5.2 and Image 4 Week 2)
+// In the menu:
+case 4: {
+    // Select a session and student, then mark attendance
+    std::cout << "Mark attendance (P for Present, A for Absent, L for Late): ";
+    char status;
+    std::cin >> status;
+    // Logic to mark attendance based on status
+    break;
+}

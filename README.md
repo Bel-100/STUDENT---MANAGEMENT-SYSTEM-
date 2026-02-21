@@ -1,12 +1,10 @@
 # Digital Attendance System
 
-A simple attendance management system implemented in C++.
+A simple attendance management system implemented in C++
 
-C++ console app for managing attendance.
-
-Compile with `g++ main.cpp -o attendance`.
-
-Run with `./attendance`.
+- C++ console app for managing attendance.
+- Compile with `g++ main.cpp -o attendance`.
+- Run with `./attendance`.
 
 
 

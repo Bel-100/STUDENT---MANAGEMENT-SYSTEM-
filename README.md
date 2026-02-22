@@ -13,4 +13,4 @@ A simple attendance management system implemented in C++
 - C++ Compiler 
 
 ## Author
-Botchway Christabel (012421
+Botchway Christabel (01242151D)
